@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>软件可靠性分析平台 - 模板</title>
+    <style>
+        :root {
+            --primary: #1a6c7e;
+            --primary-dark: #0f4f5a;
+            --primary-light: #e5f2f4;
+            --sidebar-grad-start: #13424e;
+            --sidebar-grad-end: #0b2530;
+            --text-dark: #1d2b36;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Microsoft YaHei", Arial, sans-serif; }
+        body { min-height: 100vh; background: #f7f3ec; color: var(--text-dark); }
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+        .app.hidden {
+            display: none;
+        }
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(180deg, var(--sidebar-grad-start), var(--sidebar-grad-end));
+            color: #fff;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar h1 {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .menu-section { margin-bottom: 20px; }
+        .menu-section-title {
+            font-size: 14px;
+            padding: 10px 20px;
+            color: #c9d9ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .menu-item {
+            padding: 10px 30px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .menu-item.active,
+        .menu-item:hover { background: rgba(255,255,255,0.15); }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .sidebar-footer strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #b6dbee;
+        }
+        .sidebar-footer details {
+            margin-bottom: 4px;
+        }
+        .sidebar-footer summary {
+            list-style: none;
+            cursor: pointer;
+            color: #e2f3ff;
+        }
+        .sidebar-footer summary::-webkit-details-marker {
+            display: none;
+        }
+        .sidebar-footer small {
+            color: #cfe9ff;
+            font-size: 12px;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .top-banner {
+            background: #0f2a32;
+            padding: 0;
+            height: 140px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .top-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .header {
+            background: var(--primary);
+            padding: 16px 40px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h2 { font-size: 22px; }
+        .content {
+            padding: 30px 40px;
+            background: #fff;
+            flex: 1;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--primary-light);
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        .tab.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+        }
+        .card {
+            border: 1px solid var(--primary-light);
+            border-radius: 6px;
+            padding: 20px;
+        }
+        .model-panel { display: none; }
+        .model-panel.active { display: block; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-row { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; color: var(--primary-dark); font-weight: bold; }
+        select, input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #c0dfe5;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 24px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn.secondary { background: var(--primary-light); color: var(--primary-dark); }
+        .btn.primary { background: var(--primary); color: #fff; }
+        .failure-layout { display: flex; gap: 24px; }
+        .dataset-card {
+            width: 260px;
+            border: 1px solid var(--primary-light);
+            border-radius: 6px;
+            padding: 16px;
+            background: #fffdf8;
+        }
+        .dataset-card p { margin-top: 12px; color: var(--primary-dark); font-weight: bold; }
+        .data-panel { flex: 1; }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-row > div {
+            min-width: 160px;
+            flex: 1;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .stat-card {
+            border-radius: 6px;
+            padding: 14px 16px;
+            background: var(--primary-light);
+            border: 1px solid #c9e4e8;
+        }
+        .stat-card h4 {
+            font-size: 14px;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+        .stat-card p {
+            font-size: 13px;
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #c7d6f3;
+            padding: 8px;
+            text-align: center;
+        }
+        th { background: #f0f6f6; color: var(--primary-dark); }
+        .login-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(19,66,78,0.92), rgba(10,37,48,0.95));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .login-card {
+            width: 360px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .login-card h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+        }
+        .login-card .form-row { margin-bottom: 20px; }
+        .login-card button {
+            width: 100%;
+            border-radius: 30px;
+        }
+        .login-error {
+            color: #c7393d;
+            font-size: 13px;
+            text-align: center;
+            min-height: 18px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <h2>软件可靠性分析平台</h2>
+            <div class="login-error" id="loginError"></div>
+            <div class="form-row">
+                <label>账户</label>
+                <input type="text" id="loginUser" placeholder="请输入账户名，例如 admin" />
+            </div>
+            <div class="form-row">
+                <label>密码</label>
+                <input type="password" id="loginPass" placeholder="请输入密码" />
+            </div>
+            <button class="btn primary" id="loginBtn">登录</button>
+        </div>
+    </div>
+    <div class="app hidden" id="appContainer">
+    <aside class="sidebar">
+        <h1>软件可靠性分析平台</h1>
+        <div class="menu-section">
+            <div class="menu-section-title">经典可靠性模型</div>
+            <div class="menu-item active" data-model="jm">JM 模型</div>
+            <div class="menu-item" data-model="go">GO 模型</div>
+        </div>
+        <div class="menu-section">
+            <div class="menu-section-title">时间序列模型</div>
+            <div class="menu-item" data-model="emd">经验模态分解模型</div>
+        </div>
+        <div class="menu-section">
+            <div class="menu-section-title">SOA 可靠性模型</div>
+            <div class="menu-item" data-model="markov">Markov 模型</div>
+        </div>
+        <div class="menu-section">
+            <div class="menu-section-title">模型对比分析</div>
+            <div class="menu-item" data-model="perf_compare">性能对比分析</div>
+            <div class="menu-item" data-model="slr_compare">SLR 对比分析</div>
+        </div>
+        <div class="menu-section">
+            <div class="menu-section-title">系统管理</div>
+            <div class="menu-item" data-model="user_mgmt">用户管理</div>
+            <div class="menu-item" id="logoutItem">登出账号</div>
+        </div>
+        <div class="sidebar-footer">
+            <strong>系统编写人员</strong>
+            <details>
+                <summary>162330326 徐紫阳</summary>
+                <small>网页、界面设计及接口设计</small>
+            </details>
+            <details>
+                <summary>162330327 周梓健</summary>
+                <small>数据库数据导入模块，用户管理模块</small>
+            </details>
+            <details>
+                <summary>162330328 卜浩男</summary>
+                <small>可靠性分析模型模块，性能分析对比模块</small>
+            </details>
+        </div>
+    </aside>
+    <main class="main">
+        <div class="top-banner">
+            <img src="https://i.imgs.ovh/2025/12/02/C8I3xp.png" alt="平台横幅" />
+        </div>
+        <header class="header">
+            <h2>JM 模型</h2>
+            <div id="userDisplay">用户：demo</div>
+        </header>
+        <section class="content">
+            <div class="tabs">
+                <div class="tab active" data-tab="intro">模型简介</div>
+                <div class="tab" data-tab="failure">失效数据</div>
+                <div class="tab" data-tab="forecast">预测分析</div>
+            </div>
+            <div class="model-panel active" data-model="jm">
+                <div class="tab-content active" data-tab="intro">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">JM 模型简介</h3>
+                        <p style="line-height:1.8; margin-bottom:10px;">
+                            JM 模型（Jelinski–Moranda 模型）是软件可靠性领域的重要经典模型之一，
+                            主要用于描述软件在调试排错阶段的错误检测过程，属于“出生模型”（Born-In 模型），
+                            适用于浴盆曲线中的早期故障期，即失效率随调试进展逐步递减的阶段。
+                        </p>
+                        <p style="line-height:1.8; margin-bottom:10px;">
+                            在该阶段，软件中遗留的错误较多、易被发现，且每次修复引入新错误的概率较低，
+                            因此可以用 JM 模型对有限实测失效数据进行近似建模与可靠性评估，给出平均失效时间间隔、
+                            可靠度函数等指标。
+                        </p>
+                        <h4 style="margin:12px 0 6px; color:var(--primary-dark);">应用与局限性</h4>
+                        <p style="line-height:1.8; margin-bottom:8px;">
+                            工程实践中，JM 模型因物理意义明确、形式简单，常被用于有限样本条件下的软件可靠性近似评估；
+                            后续研究还结合程序员技能、测试条件等环境因素对模型参数进行修正，以提高预测精度。
+                        </p>
+                        <p style="line-height:1.8; margin-bottom:8px;">
+                            但该模型主要针对调试阶段，对运行期的恒定失效率或后期递增失效率刻画能力有限，
+                            因此不适合直接描述软件全生命周期的可靠性变化过程。
+                        </p>
+                        <h4 style="margin:12px 0 6px; color:var(--primary-dark);">模型假设</h4>
+                        <ol style="padding-left:20px; line-height:1.8; margin-bottom:10px;">
+                            <li>软件中固有初始错误个数 \(N_0\) 为一个未知常数；</li>
+                            <li>软件中的各个错误相互独立，每个错误导致系统失效的可能性大致相同，各次失效时间间隔亦相互独立；</li>
+                            <li>测试过程中错误一旦被检测出即被完全排除，每次排错只排除一个错误，排错时间可忽略，且不引入新的错误；</li>
+                            <li>软件的失效率在每个失效间隔内为常数，其数值正比于当前软件中残留的错误数，比例系数为 \(\varphi\)；</li>
+                            <li>软件的实际运行方式与预期运行方式相似。</li>
+                        </ol>
+                        <h4 style="margin:12px 0 6px; color:var(--primary-dark);">模型基本公式</h4>
+                        <div style="margin:8px 0 14px;">
+                            <img src="https://i.imgs.ovh/2025/12/02/Cey8hX.png" alt="JM 模型基本公式一" style="max-width:100%; display:block; margin-bottom:8px;">
+                            <img src="https://i.imgs.ovh/2025/12/02/CeyWHp.png" alt="JM 模型基本公式二" style="max-width:100%; display:block;">
+                        </div>
+                        <h4 style="margin:12px 0 6px; color:var(--primary-dark);">使用方式（本系统中的实现）</h4>
+                        <p style="line-height:1.8; margin-bottom:4px;">
+                            1）选择数据导入方式（直接输入或数据库导入）：
+                        </p>
+                        <ul style="padding-left:20px; line-height:1.8; margin-bottom:6px;">
+                            <li><strong>直接输入：</strong>指定失效数据个数，并以空格分隔的形式输入各失效时间间隔；</li>
+                            <li><strong>数据库导入：</strong>配置数据库连接参数，从失效数据表中自动读取失效时间序列。</li>
+                        </ul>
+                        <p style="line-height:1.8;">
+                            2）系统根据所选数据和参数，对 JM 模型进行参数估计与拟合，输出可靠度函数、MTBF 等指标，
+                            并在“失效数据”“预测分析”页面中给出相应的曲线与结果表格。
+                        </p>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="failure">
+                    <div class="card">
+                        <div class="failure-layout">
+                            <div class="dataset-card">
+                                <label>选择失效数据集</label>
+                                <select>
+                                    <option>musa</option>
+                                    <option>telecom</option>
+                                    <option>projectX</option>
+                                </select>
+                                <label style="margin-top:14px;">测试数据比例</label>
+                                <select>
+                                    <option>10%</option>
+                                    <option>20%</option>
+                                    <option>30%</option>
+                                </select>
+                                <button class="btn primary" style="width:100%; margin-top:16px;">修改</button>
+                                <p>当前数据集：musa</p>
+                            </div>
+                            <div class="data-panel">
+                                <div class="stats-row">
+                                    <div>数据名称：<strong>musa</strong></div>
+                                    <div>数据长度：<strong>2</strong></div>
+                                    <div>训练数据：<strong>2</strong></div>
+                                    <div>测试数据：<strong>0</strong></div>
+                                    <div>数据维数：<strong>3</strong></div>
+                                    <div>描述：经典模型数据集</div>
+                                </div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>序号</th>
+                                            <th>failuretime</th>
+                                            <th>d_index</th>
+                                            <th>d_count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>1.0</td>
+                                            <td>2.0</td>
+                                            <td>12.0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>2.0</td>
+                                            <td>2.0</td>
+                                            <td>9.0</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="forecast">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">分析设置</h3>
+                        <div class="form-row">
+                            <label>数据序列</label>
+                            <select>
+                                <option>failuretime</option>
+                                <option>d_index</option>
+                                <option>d_count</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>预测步长 (0-100)</label>
+                            <input type="number" placeholder="5" />
+                        </div>
+                        <div class="form-row">
+                            <label>学习系数 (0-1)</label>
+                            <input type="number" placeholder="0.1" step="0.01" />
+                        </div>
+                        <div class="form-row">
+                            <label>重构维数 (3-10)</label>
+                            <input type="number" placeholder="5" />
+                        </div>
+                        <div class="form-row">
+                            <label>训练代数 (10-100000)</label>
+                            <input type="number" placeholder="10000" />
+                        </div>
+                        <div class="form-row">
+                            <label>阈值 (0-1)</label>
+                            <input type="number" placeholder="0.01" step="0.01" />
+                        </div>
+                        <div class="actions">
+                            <button class="btn secondary">保存</button>
+                            <button class="btn primary">预测</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="model-panel" data-model="go">
+                <div class="tab-content" data-tab="intro">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">GO 模型简介</h3>
+                        <div style="line-height:1.8;">
+                            <h4 style="color:var(--primary-dark); margin-top:20px; margin-bottom:10px;">一、模型简介</h4>
+                            <p style="margin-bottom:15px;">
+                                GO 模型是一种图形化、定量化的系统可靠性分析方法，由美国贝尔实验室于 20 世纪 60 年代提出，最初用于硬件系统可靠性评估，后逐步扩展至软件、软硬件混合系统。其核心思想是：
+                            </p>
+                            <ul style="margin-left:20px; margin-bottom:15px;">
+                                <li>以 "系统成功完成任务" 为分析目标，而非聚焦 "故障发生"；</li>
+                                <li>将系统分解为若干功能单元（组件），用标准化的图形符号（GO 图）描述组件间的逻辑关系（串联、并联、表决等）；</li>
+                                <li>通过数学计算（概率传递、状态组合）推导系统整体的成功概率（即可靠度）。</li>
+                            </ul>
+
+                            <h4 style="color:var(--primary-dark); margin-top:20px; margin-bottom:10px;">二、应用与局限性</h4>
+                            <p style="margin-bottom:10px;"><strong>应用场景：</strong></p>
+                            <ul style="margin-left:20px; margin-bottom:15px;">
+                                <li><strong>嵌入式软件：</strong>如航空航天控制软件、汽车电子软件（需高可靠性，任务流程明确）；</li>
+                                <li><strong>分布式系统/集群软件：</strong>如服务器集群、云存储系统（含主备切换、表决机制）；</li>
+                                <li><strong>流程化软件：</strong>如工业控制软件、金融交易系统（任务步骤固定，组件逻辑清晰）；</li>
+                                <li><strong>软硬件混合系统：</strong>如物联网设备固件（需同时考虑硬件组件和软件模块的可靠性）。</li>
+                            </ul>
+                            <p style="margin-bottom:15px;">
+                                <strong>局限性：</strong>软件模块的 "功能边界" 不如硬件组件清晰（如函数调用、数据依赖），导致系统分解难度大；标准GO模型的17种操作符难以覆盖软件特有的逻辑（如循环、分支、异常处理）；软件组件的成功概率难以通过试验直接测量（硬件可通过寿命试验获取），需依赖历史数据或专家评估，主观性强。
+                            </p>
+
+                            <h4 style="color:var(--primary-dark); margin-top:20px; margin-bottom:10px;">三、模型假设</h4>
+                            <ol style="margin-left:20px; margin-bottom:15px;">
+                                <li>程序在同实际执行环境相差不大的条件下执行。</li>
+                                <li>在软件测试过程中，所有检测到的故障是相互独立的。</li>
+                                <li>测试未运行时的软件失效为0；当测试进行时，软件失效服从均值为m(t)的非齐次泊松过程（NHPP）。</li>
+                                <li>t 时刻累积检测到的故障数量m(t)变化率与当前剩余的故障数量a − m(t)成正比例, 比例系数为b。</li>
+                                <li>每次只修正一个错误，当软件故障出现时，引发故障的错误被立即排除，并不会引入新的错误。</li>
+                            </ol>
+
+                            <h4 style="color:var(--primary-dark); margin-top:20px; margin-bottom:10px;">四、模型基本公式</h4>
+                            <div style="margin-bottom:20px;">
+                                <img src="https://i.imgs.ovh/2025/12/02/Ceynw6.png" alt="GO模型公式1" style="max-width:100%; height:auto; margin-bottom:10px; display:block;" />
+                                <img src="https://i.imgs.ovh/2025/12/02/CeyHLO.png" alt="GO模型公式2" style="max-width:100%; height:auto; margin-bottom:10px; display:block;" />
+                                <img src="https://i.imgs.ovh/2025/12/02/CeyJMd.png" alt="GO模型公式3" style="max-width:100%; height:auto; margin-bottom:10px; display:block;" />
+                            </div>
+
+                            <h4 style="color:var(--primary-dark); margin-top:20px; margin-bottom:10px;">五、使用方式</h4>
+                            <p style="margin-bottom:10px;">选择数据的导入方式：直接输入、数据库导入</p>
+                            <ol style="margin-left:20px;">
+                                <li><strong>直接输入：</strong>输入失效数据个数，输入失效数据的发生时间（空格分隔）</li>
+                                <li><strong>数据库导入：</strong>连接数据库，导入数据</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="failure">
+                    <div class="card">
+                        <p>GO 模型暂不需要失效数据表，可在此展示组件可靠性列表或模型结构示意。</p>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="forecast">
+                    <div class="card">
+                        <p>GO 模型预测设置区域，后续可配置组件关系、冗余策略等参数。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="model-panel" data-model="markov">
+                <div class="tab-content" data-tab="intro">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">Markov 模型简介</h3>
+                        <p style="line-height:1.8;">
+                            基于 Markov 链的 SOA 可靠性模型通过状态转移概率来描述服务的运行、降级和恢复过程。
+                            通过定义状态集合与转移矩阵，可以求解稳态分布并评估服务组合的整体可靠性。
+                        </p>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="failure">
+                    <div class="card">
+                        <p>Markov 模型可在此展示历史状态序列或事件日志，当前为占位内容。</p>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="forecast">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">Markov 模型分析设置</h3>
+                        <div class="form-row">
+                            <label>状态数量</label>
+                            <input type="number" placeholder="4" />
+                        </div>
+                        <div class="form-row">
+                            <label>状态转移矩阵</label>
+                            <textarea rows="5" placeholder="[[0.8,0.2],[0.1,0.9]]"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <label>初始状态分布</label>
+                            <input type="text" placeholder="[0.6, 0.4, 0, 0]" />
+                        </div>
+                        <div class="actions">
+                            <button class="btn secondary">重置</button>
+                            <button class="btn primary">分析</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="model-panel" data-model="emd">
+                <div class="tab-content" data-tab="intro">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">经验模态分解模型简介</h3>
+                        <p style="line-height:1.8;">
+                            经验模态分解（EMD）是一种适用于非线性、非平稳时间序列的数据驱动方法，
+                            通过自适应分解得到一组本征模态函数（IMF），用于分析故障数据的趋势与波动特征，
+                            为后续预测模型提供更稳定的输入。
+                        </p>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="failure">
+                    <div class="card"><p>EMD 模型失效数据配置占位内容。</p></div>
+                </div>
+                <div class="tab-content" data-tab="forecast">
+                    <div class="card"><p>EMD 模型预测分析参数设置占位内容。</p></div>
+                </div>
+            </div>
+
+            <div class="model-panel" data-model="perf_compare">
+                <div class="tab-content active" data-tab="intro">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">性能对比分析</h3>
+                        <div class="filter-row">
+                            <div>
+                                <label>选择数据集</label>
+                                <select>
+                                    <option>musa</option>
+                                    <option>项目A</option>
+                                    <option>项目B</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>选择对比模型</label>
+                                <select multiple style="height:80px;">
+                                    <option>JM 模型</option>
+                                    <option>GO 模型</option>
+                                    <option>EMD 模型</option>
+                                    <option>Markov 模型</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>评价指标</label>
+                                <select>
+                                    <option>MAE / RMSE / R²</option>
+                                    <option>仅精度指标</option>
+                                    <option>仅时间开销</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn secondary">清空选择</button>
+                            <button class="btn primary">开始对比</button>
+                        </div>
+                        <div style="margin-top:20px;" class="card-grid">
+                            <div class="stat-card">
+                                <h4>JM 模型</h4>
+                                <p>MAE：0.12，RMSE：0.18，耗时：0.25s</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>GO 模型</h4>
+                                <p>MAE：0.10，RMSE：0.16，耗时：0.30s</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>EMD 模型</h4>
+                                <p>MAE：0.09，RMSE：0.14，耗时：0.45s</p>
+                            </div>
+                        </div>
+                        <p style="font-size:12px;color:#888;margin-top:8px;">（上表为示意数据，实际值由后台计算生成）</p>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="failure">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">对比数据集管理</h3>
+                        <p style="line-height:1.8;">这里可以列出可用于对比分析的失效数据集，支持勾选参与本次对比。</p>
+                        <table style="margin-top:12px;">
+                            <thead>
+                                <tr>
+                                    <th>选择</th>
+                                    <th>数据集名称</th>
+                                    <th>长度</th>
+                                    <th>维数</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox" checked></td>
+                                    <td>musa</td>
+                                    <td>200</td>
+                                    <td>3</td>
+                                    <td>经典数据集</td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>projectA</td>
+                                    <td>150</td>
+                                    <td>4</td>
+                                    <td>Web 系统</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="forecast">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">结果汇总视图</h3>
+                        <p style="line-height:1.8;">
+                            本页用于展示模型性能对比的图表（如折线图、柱状图），当前以表格形式占位，
+                            后续可通过前端图表库接入真实可视化。
+                        </p>
+                        <table style="margin-top:12px;">
+                            <thead>
+                                <tr>
+                                    <th>模型</th>
+                                    <th>MAE</th>
+                                    <th>RMSE</th>
+                                    <th>R²</th>
+                                    <th>耗时(s)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>JM</td>
+                                    <td>0.12</td>
+                                    <td>0.18</td>
+                                    <td>0.93</td>
+                                    <td>0.25</td>
+                                </tr>
+                                <tr>
+                                    <td>GO</td>
+                                    <td>0.10</td>
+                                    <td>0.16</td>
+                                    <td>0.95</td>
+                                    <td>0.30</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="model-panel" data-model="slr_compare">
+                <div class="tab-content" data-tab="intro">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">SLR 对比分析</h3>
+                        <p style="line-height:1.8;">
+                            SLR 对比分析模块用于将实验结果与系统级可靠性（Software Level Reliability）或文献基准进行对照，
+                            形成更加全面的评估结论。
+                        </p>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="failure">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">基准数据选择</h3>
+                        <div class="filter-row">
+                            <div>
+                                <label>选择模型结果</label>
+                                <select>
+                                    <option>项目A - JM</option>
+                                    <option>项目A - GO</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>选择对照文献/标准</label>
+                                <select>
+                                    <option>文献1</option>
+                                    <option>文献2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p style="font-size:13px;color:#666;">可在此录入或导入标准 SLR 曲线或关键指标。</p>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="forecast">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">SLR 对比结果</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>指标</th>
+                                    <th>模型结果</th>
+                                    <th>基准值</th>
+                                    <th>差异</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>稳态可靠性</td>
+                                    <td>0.982</td>
+                                    <td>0.980</td>
+                                    <td>+0.002</td>
+                                </tr>
+                                <tr>
+                                    <td>MTBF</td>
+                                    <td>120 h</td>
+                                    <td>115 h</td>
+                                    <td>+5 h</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="model-panel" data-model="user_mgmt">
+                <div class="tab-content active" data-tab="intro">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">用户管理</h3>
+                        <p style="line-height:1.8;">
+                            系统管理模块中的用户管理用于维护平台账号，包括新增用户、重置密码、启用/禁用账号等基础功能，
+                            后续可扩展角色与权限控制。
+                        </p>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="failure">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">用户列表</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>用户名</th>
+                                    <th>姓名</th>
+                                    <th>角色</th>
+                                    <th>状态</th>
+                                    <th>最后登录</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>admin</td>
+                                    <td>系统管理员</td>
+                                    <td>管理员</td>
+                                    <td>启用</td>
+                                    <td>2025-11-25 10:23</td>
+                                    <td><a href="javascript:void(0);">编辑</a> | <a href="javascript:void(0);">禁用</a></td>
+                                </tr>
+                                <tr>
+                                    <td>user01</td>
+                                    <td>张三</td>
+                                    <td>普通用户</td>
+                                    <td>启用</td>
+                                    <td>2025-11-24 19:05</td>
+                                    <td><a href="javascript:void(0);">编辑</a> | <a href="javascript:void(0);">重置密码</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="forecast">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px; color:var(--primary-dark);">新增/编辑用户</h3>
+                        <div class="filter-row">
+                            <div>
+                                <label>用户名</label>
+                                <input type="text" placeholder="请输入用户名" />
+                            </div>
+                            <div>
+                                <label>姓名</label>
+                                <input type="text" placeholder="请输入姓名" />
+                            </div>
+                            <div>
+                                <label>角色</label>
+                                <select>
+                                    <option>普通用户</option>
+                                    <option>管理员</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>状态</label>
+                                <select>
+                                    <option>启用</option>
+                                    <option>禁用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label>初始密码</label>
+                            <input type="password" placeholder="设置初始密码（可选）" />
+                        </div>
+                        <div class="actions">
+                            <button class="btn secondary">清空</button>
+                            <button class="btn primary">保存用户</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    </div>
+    <script>
+        const sidebarItems = document.querySelectorAll('.menu-item[data-model]');
+        const headerTitle = document.querySelector('.header h2');
+        const userDisplay = document.getElementById('userDisplay');
+        const modelPanels = document.querySelectorAll('.model-panel');
+        const tabButtons = document.querySelectorAll('.tab');
+        const tabLabels = {
+            default: ['模型简介', '失效数据', '预测分析'],
+            jm: ['模型简介', '失效数据', '预测分析'],
+            go: ['模型简介', '失效数据', '预测分析'],
+            emd: ['模型简介', '失效数据', '预测分析'],
+            markov: ['模型简介', '失效数据', '预测分析'],
+            perf_compare: ['总体配置', '数据集管理', '结果视图'],
+            slr_compare: ['概览', '基准数据', '对比结果'],
+            user_mgmt: ['模块说明', '用户列表', '账号维护']
+        };
+        let currentModel = 'jm';
+        let currentTab = 'intro';
+
+        function updateTabLabels() {
+            const labels = tabLabels[currentModel] || tabLabels.default;
+            tabButtons.forEach((btn, idx) => {
+                btn.textContent = labels[idx] || '';
+                btn.style.visibility = labels[idx] ? 'visible' : 'hidden';
+            });
+        }
+
+        function updatePanels() {
+            updateTabLabels();
+            modelPanels.forEach(panel => {
+                const isActiveModel = panel.dataset.model === currentModel;
+                panel.classList.toggle('active', isActiveModel);
+                if (isActiveModel) {
+                    const tabContents = panel.querySelectorAll('.tab-content');
+                    tabContents.forEach(content => {
+                        content.classList.toggle('active', content.dataset.tab === currentTab);
+                    });
+                }
+            });
+        }
+
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', () => {
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                currentModel = item.dataset.model;
+                headerTitle.textContent = item.textContent.trim();
+                updatePanels();
+            });
+        });
+
+        tabButtons.forEach(tabBtn => {
+            tabBtn.addEventListener('click', () => {
+                tabButtons.forEach(t => t.classList.remove('active'));
+                tabBtn.classList.add('active');
+                currentTab = tabBtn.dataset.tab;
+                updatePanels();
+            });
+        });
+
+        updatePanels();
+
+        const loginBtn = document.getElementById('loginBtn');
+        const loginScreen = document.getElementById('loginScreen');
+        const appContainer = document.getElementById('appContainer');
+        const loginError = document.getElementById('loginError');
+        const logoutItem = document.getElementById('logoutItem');
+        const loginUserInput = document.getElementById('loginUser');
+        const loginPassInput = document.getElementById('loginPass');
+
+        function resetToDefaultView() {
+            currentModel = 'jm';
+            currentTab = 'intro';
+            sidebarItems.forEach(item => {
+                if (item.dataset && item.dataset.model) {
+                    item.classList.toggle('active', item.dataset.model === currentModel);
+                }
+            });
+            tabButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === currentTab);
+            });
+            updatePanels();
+        }
+
+        loginBtn.addEventListener('click', () => {
+            const user = loginUserInput.value.trim();
+            const pass = loginPassInput.value;
+            if (user === 'admin' && pass === '123') {
+                loginScreen.style.display = 'none';
+                appContainer.classList.remove('hidden');
+                loginError.textContent = '';
+                resetToDefaultView();
+                if (userDisplay) {
+                    userDisplay.textContent = `用户：${user}`;
+                }
+            } else {
+                loginError.textContent = '账户或密码不正确，请重试（默认：admin / 123）';
+            }
+        });
+        loginPassInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                loginBtn.click();
+            }
+        });
+        if (logoutItem) {
+            logoutItem.addEventListener('click', () => {
+                appContainer.classList.add('hidden');
+                loginScreen.style.display = 'flex';
+                loginUserInput.value = '';
+                loginPassInput.value = '';
+                loginError.textContent = '';
+                if (userDisplay) {
+                    userDisplay.textContent = '用户：demo';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
